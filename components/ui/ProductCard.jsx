@@ -1,90 +1,112 @@
-"use client"
-import { deleteProduct } from '@/app/actions';
-import React, { useState } from 'react'
-import { toast } from 'sonner';
-import { Card, CardContent, CardFooter, CardHeader } from './card';
-import { ChevronDown, ChevronUp, ExternalLink, Trash2, TrendingDown } from 'lucide-react';
-import { Badge } from './badge';
-import { Button } from './button';
-import Link from 'next/link';
-import PriceChart from '@/lib/components/PriceChart';
 
-const ProductCard = ({product}) => {
-    const [showChart, setShowChart] = useState(false);
-    const [deleting,setDeleting] = useState(false);
+"use client";
 
-    const handleDelete = async()=>{
-        if(!confirm("Remove this product from tracking?")) return;
+import { deleteProduct } from "@/app/actions";
+import React, { useState } from "react";
+import { toast } from "sonner";
+import { Card, CardContent, CardFooter, CardHeader } from "./card";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Trash2,
+  TrendingDown,
+} from "lucide-react";
+import { Badge } from "./badge";
+import { Button } from "./button";
+import PriceChart from "@/lib/components/PriceChart";
 
-        setDeleting(true);;
-        const result = await deleteProduct(product.id);
+const ProductCard = ({ product }) => {
+  const [showChart, setShowChart] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
-        if (result.error) {
+  const handleDelete = async () => {
+    if (!confirm("Remove this product from tracking?")) return;
+
+    setDeleting(true);
+
+    try {
+      const result = await deleteProduct(product.id);
+
+      if (result.error) {
         toast.error(result.error);
       } else {
-        toast.success(
-          result.message || "Product deleted successfully!");
-        setUrl("");
+        toast.success("Product deleted successfully!");
       }
-
+    } catch (error) {
+      toast.error("Failed to delete product");
+    } finally {
       setDeleting(false);
-         
-    };
+    }
+  };
 
   return (
-  <Card className="hover:shadow-lg transition-shadow">
-  <CardHeader className={"pb-3"}>
-    <div className="flex gap-4">
-        {product.image_url && (
-        <img
-            src={product.image_url}
-            alt={product.name}
-            className="w-20 h-20 object-cover rounded-md border"
+    <Card className="w-full overflow-hidden rounded-2xl border border-gray-200/80 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-4">
+          {product.image_url && (
+            <img
+              src={product.image_url}
+              alt={product.name}
+              className="h-20 w-20 shrink-0 rounded-xl border border-gray-100 bg-gray-50 object-cover"
             />
           )}
 
-          <div className="flex-1 min-w-0">
-            <h3 className="font-semibold text-gray-900 line-clamp-2mb-2">
-                {product.name}
+          <div className="min-w-0 flex-1">
+            <h3 className="mb-2 line-clamp-2 text-sm font-semibold leading-relaxed text-gray-900">
+              {product.name}
             </h3>
-            <div className='flex items-baseline gap-2'>
-             <span className="text-3xl font-bold text-orange-500">
-                {product.currency} {product.current_price}
+
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-2xl font-bold tracking-tight text-orange-600">
+                {product.currency || "INR"}{" "}
+                {Number(product.current_price).toLocaleString("en-IN")}
               </span>
 
-            <Badge variant="secondary" className="gap-1">
-            <TrendingDown className="w=3 h-3" />
-            Tracking
-            </Badge>
+              <Badge variant="secondary" className="gap-1 rounded-full">
+                <TrendingDown className="h-3 w-3" />
+                Tracking
+              </Badge>
             </div>
           </div>
-    </div>
-  </CardHeader>
-  <CardContent>
-     <div className="flex flex-wrap gap-2">
+        </div>
+      </CardHeader>
+
+      <CardContent className="pb-4">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => setShowChart(!showChart)}
-            className="gap-1"
+            className="gap-1 rounded-full"
           >
             {showChart ? (
               <>
-                <ChevronUp className="w-4 h-4" />
+                <ChevronUp className="h-4 w-4" />
                 Hide Chart
               </>
             ) : (
               <>
-                <ChevronDown className="w-4 h-4" />
+                <ChevronDown className="h-4 w-4" />
                 Show Chart
               </>
             )}
           </Button>
-        <Button variant="outline" size="sm" asChild className="gap-1">
-            <Link href={product.url} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="w-4 h-4" />
-              View Product
-            </Link>
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-1 rounded-full"
+            onClick={() =>
+              window.open(
+                product.url,
+                "_blank",
+                "noopener,noreferrer"
+              )
+            }
+          >
+            <ExternalLink className="h-4 w-4" />
+            View Product
           </Button>
 
           <Button
@@ -92,20 +114,21 @@ const ProductCard = ({product}) => {
             size="sm"
             onClick={handleDelete}
             disabled={deleting}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 gap-1"
+            className="gap-1 rounded-full text-red-600 hover:bg-red-50 hover:text-red-700"
           >
-            <Trash2 className="w-4 h-4" />
-            Remove
+            <Trash2 className="h-4 w-4" />
+            {deleting ? "Removing..." : "Remove"}
           </Button>
         </div>
-  </CardContent>
- {showChart && (
-        <CardFooter className="pt-0">
+      </CardContent>
+
+      {showChart && (
+        <CardFooter className="border-t border-gray-100 bg-gray-50/70 p-4">
           <PriceChart productId={product.id} />
         </CardFooter>
       )}
-</Card>
-);
+    </Card>
+  );
 };
 
-export default ProductCard
+export default ProductCard;

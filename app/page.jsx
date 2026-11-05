@@ -1,7 +1,12 @@
 import AddProductforms from "@/components/ui/AddProductforms";
 import AuthButton from "@/components/ui/AuthButton";
 import { createClient } from "@/utils/supabase/server";
-import { Bell, LogIn, Rabbit, Shield, TrendingDown } from "lucide-react";
+import {
+  Bell,
+  Rabbit,
+  Shield,
+  TrendingDown,
+} from "lucide-react";
 import Image from "next/image";
 import { getProducts } from "./actions";
 import ProductCard from "@/components/ui/ProductCard";
@@ -9,9 +14,10 @@ import ProductCard from "@/components/ui/ProductCard";
 export default async function Home() {
   const supabase = await createClient();
 
-  const{
+  const {
     data: { user },
   } = await supabase.auth.getUser();
+
   const products = user ? await getProducts() : [];
 
   const FEATURES = [
@@ -37,101 +43,120 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-linear-to-br from-orange-50 via-white to-orange-50">
-      <header className="bg-white/80 backdrop-blur-sm border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          
+
+      {/* Header */}
+      <header className="sticky top-0 z-10 border-b border-gray-200 bg-white/80 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4">
+
           {/* Logo */}
           <div className="flex items-center gap-3">
             <Image
-  src="/logo.png"
-  alt="PricePulse Logo"
-  width={200}
-  height={70}
-  className="h-14 w-auto object-contain"
-/>
+              src="/logo.png"
+              alt="PricePulse Logo"
+              width={200}
+              height={70}
+              className="h-14 w-auto object-contain"
+              priority
+            />
           </div>
 
-        <AuthButton user={user} />
+          <AuthButton user={user} />
 
         </div>
       </header>
 
-      <section className="py-20 px-4">
-        <div className="max-w-7xl mx-auto text-center">
-          
-          <div className="inline-flex items-center gap-2 bg-orange-100 text-orange-700 px-6 py-2 rounded-full text-sm font-medium mb-6">
+      {/* Hero Section */}
+      <section className="px-4 py-16 md:py-20">
+        <div className="mx-auto max-w-7xl text-center">
+
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-orange-100 px-6 py-2 text-sm font-medium text-orange-700">
             Made with ❤︎ by Navraj Singh
-            </div>
+          </div>
 
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 tracking-tight">
+          <h1 className="mb-4 text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
             Never Miss a Price Drop
-          </h2>
+          </h1>
 
-          <p className="text-base text-gray-600 mb-10 max-w-2xl mx-auto">
+          <p className="mx-auto mb-10 max-w-2xl text-base leading-relaxed text-gray-600">
             Track prices from any e-commerce site. Get instant alerts when
             prices drop. Save money effortlessly.
           </p>
-        
-        <AddProductforms user={user}/>
 
-         {products.length === 0 && (
-  <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-16">
-    {FEATURES.map(({ icon: Icon, title, description }) => (
-      <div
-        key={title}
-        className="bg-white p-6 rounded-xl border border-gray-200 min-h-41.25 flex flex-col items-center justify-center"
-      >
-        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4 mx-auto">
-          <Icon className="w-6 h-6 text-orange-500" />
+          {/* Add Product Form */}
+          <AddProductforms user={user} />
+
+          {/* Feature Cards */}
+          {products.length === 0 && (
+            <div className="mx-auto mt-16 grid max-w-4xl gap-6 md:grid-cols-3">
+
+              {FEATURES.map(({ icon: Icon, title, description }) => (
+                <div
+                  key={title}
+                  className="flex min-h-41.25 flex-col items-center justify-center rounded-xl border border-gray-200 bg-white p-6"
+                >
+                  <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-orange-100">
+                    <Icon className="h-6 w-6 text-orange-500" />
+                  </div>
+
+                  <h3 className="mb-2 text-lg font-semibold text-gray-900">
+                    {title}
+                  </h3>
+
+                  <p className="text-sm leading-relaxed text-gray-600">
+                    {description}
+                  </p>
+                </div>
+              ))}
+
+            </div>
+          )}
+
         </div>
+      </section>
 
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          {title}
-        </h3>
+      {/* Tracked Products */}
+      {user && products.length > 0 && (
+        <section className="mx-auto max-w-7xl px-4 pb-20">
 
-        <p className="text-sm text-gray-600 leading-relaxed">
-          {description}
-        </p>
-      </div>
-    ))}
-  </div>
-)}
-  </div>
-  </section>
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-bold text-gray-900">
+              Your Tracked Products
+            </h2>
 
-  {user && products.length > 0 && (
-    <section className="max-w-7xl mx-auto px-4 pb-20">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-gray-900">
-          Your Tracked Products
-          </h3>
-
-        <span className="text-sm text-gray-500">
-          {products.length} {products.length === 1 ? "product" : "products"}
-        </span>
-      </div>
-
-       <div className="grid gap-6 md:grid-cols-2 items-start">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+            <span className="text-sm text-gray-500">
+              {products.length}{" "}
+              {products.length === 1 ? "product" : "products"}
+            </span>
           </div>
-    </section>
-  )}
 
-    {user && products.length === 0 && (
-        <section className="max-w-2xl mx-auto px-4 pb-20 text-center">
-          <div className="bg-white rounded-xl border-2 border-dashed border-gray-300 p-12">
-            <TrendingDown className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              No products yet
-            </h3>
-            <p className="text-gray-600">
-              Add your first product above to start tracking prices!
-            </p>
+          {/* Single-column product layout */}
+          <div className="grid gap-6 md:grid-cols-2 items-start">
+            {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
           </div>
         </section>
       )}
+
+      {/* Empty Product State */}
+      {user && products.length === 0 && (
+        <section className="mx-auto max-w-2xl px-4 pb-20 text-center">
+          <div className="rounded-xl border-2 border-dashed border-gray-300 bg-white p-12">
+
+            <TrendingDown className="mx-auto mb-4 h-16 w-16 text-gray-400" />
+
+            <h3 className="mb-2 text-xl font-semibold text-gray-900">
+              No products yet
+            </h3>
+
+            <p className="text-gray-600">
+              Add your first product above to start tracking prices!
+            </p>
+
+          </div>
+        </section>
+      )}
+
     </main>
   );
 }
