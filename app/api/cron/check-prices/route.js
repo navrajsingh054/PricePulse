@@ -4,10 +4,8 @@ import { sendPriceDropAlert } from "@/lib/email";
 import { createClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 
-export async function GET() {
-    return NextResponse.json({
-        message: "Price check endpoint is working. Use POST to trigger.",
-    });
+export async function GET(request) {
+    return POST(request);
 }
 
 export async function POST(request) {
